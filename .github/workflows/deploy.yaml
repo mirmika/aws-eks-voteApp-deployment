@@ -30,12 +30,12 @@ jobs:
           sudo docker build -t your-dockerhub-username/result:${GITHUB_REF##*/} .
       - name: Build image for vote service
         run: |
-          cd ../ironhack-project-1/vote
+          cd ./ironhack-project-1/vote
           sudo docker build -t your-dockerhub-username/vote:${GITHUB_REF##*/} .
 
       - name: Build image for worker service
         run: |
-          cd ../ironhack-project-1/rworker
+          cd ./ironhack-project-1/rworker
           sudo docker build -t your-dockerhub-username/worker:${GITHUB_REF##*/} .
 
       # Configure AWS Credentials
