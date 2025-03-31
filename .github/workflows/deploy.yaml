@@ -84,6 +84,9 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y gettext-base
 
+          # Use envsubst to dynamically replace image tags in the Kubernetes YAML files
+          export IMAGE_TAG=${{ env.IMAGE_TAG }}
+
           # Replace image tags in k8s YAML files
           for service in result vote worker; do
             envsubst < k8s/${service}.yaml > k8s/${service}-final.yaml
