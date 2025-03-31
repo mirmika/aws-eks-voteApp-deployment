@@ -23,16 +23,16 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
           
-      # Extract image tag
-      - name: Extract image tag
-        run: |
-          if [[ $GITHUB_REF == refs/heads/* ]]; then
-            IMAGE_TAG="main"   # For push to `main` branch
-          elif [[ $GITHUB_REF == refs/tags/* ]]; then
-            IMAGE_TAG=${GITHUB_REF##*/}  # Extract the tag name (e.g., v1.0.0)
-          fi
-          echo "IMAGE_TAG=${IMAGE_TAG}" >> $GITHUB_ENV   # Set environment variable
-          echo "Using image tag: $IMAGE_TAG"
+       # Set IMAGE_TAG
+      - name: Set IMAGE_TAG based on GitHub event
+       run: |
+         if [[ $GITHUB_REF == refs/tags/* ]]; then
+           IMAGE_TAG=${GITHUB_REF##*/}  # Extract version tag, e.g., v1.0.0
+         else
+           IMAGE_TAG="main"  # Set IMAGE_TAG to "main" for pushes to the main branch
+         fi
+         echo "IMAGE_TAG=${IMAGE_TAG}" >> $GITHUB_ENV  # Set IMAGE_TAG as environment variable
+         echo "Using image tag: $IMAGE_TAG"
         
       # Step 3: Build Docker images with versioned tags
       - name: Build image for result service
