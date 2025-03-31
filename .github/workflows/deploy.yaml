@@ -35,7 +35,7 @@ jobs:
 
       - name: Build image for worker service
         run: |
-          cd ./ironhack-project-1/rworker
+          cd ./ironhack-project-1/worker
           sudo docker build -t your-dockerhub-username/worker:${GITHUB_REF##*/} .
 
       # Configure AWS Credentials
