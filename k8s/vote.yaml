@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
        - name: vote
-         image: mirmika/vote
+         image: docker.io/${{ secrets.DOCKER_USERNAME }}/vote:${{ env.IMAGE_TAG }} 
          env:
          - name: REDIS_HOST
            value: redis-service

@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
        - name: worker
-         image: mirmika/worker
+         image: docker.io/${{ secrets.DOCKER_USERNAME }}/worker:${{ env.IMAGE_TAG }} 
          env:
          - name: REDIS_HOST
            value: redis-service
