@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - main
+    tags:
+      - 'v*'  # Trigger the pipeline on version tags (e.g., v1.0.0)
+
 jobs:
   build_and_deploy:
     runs-on: ubuntu-latest
@@ -19,24 +22,33 @@ jobs:
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
+
+      # Check directory structure
       - name: Check directory structure
         run: |
           ls -R ./ironhack-project-1 
           
-      # Step 3: Build Docker images
+      # Set the image tag to the Git tag or fallback to 'latest'
+      - name: Set image tag
+        run: |
+          echo "IMAGE_TAG=${GITHUB_REF##*/}" >> $GITHUB_ENV
+          echo "Using image tag: $IMAGE_TAG"
+        
+      # Step 3: Build Docker images with versioned tags
       - name: Build image for result service
         run: |
           cd ./ironhack-project-1/result
-          sudo docker build -t your-dockerhub-username/result:${GITHUB_REF##*/} .
+          sudo docker build -t your-dockerhub-username/result:${{ env.IMAGE_TAG }} .
+          
       - name: Build image for vote service
         run: |
           cd ./ironhack-project-1/vote
-          sudo docker build -t your-dockerhub-username/vote:${GITHUB_REF##*/} .
+          sudo docker build -t your-dockerhub-username/vote:${{ env.IMAGE_TAG }} .
 
       - name: Build image for worker service
         run: |
           cd ./ironhack-project-1/worker
-          sudo docker build -t your-dockerhub-username/worker:${GITHUB_REF##*/} .
+          sudo docker build -t your-dockerhub-username/worker:${{ env.IMAGE_TAG }} .
 
       # Configure AWS Credentials
       - name: Configure AWS Credentials
@@ -49,17 +61,26 @@ jobs:
       # Install kubectl
       - name: Install kubectl
         run: |
-         curl -LO "https://dl.k8s.io/release/v1.24.0/bin/linux/amd64/kubectl"
-         chmod +x ./kubectl
-         sudo mv ./kubectl /usr/local/bin/kubectl
+          curl -O https://s3.us-west-2.amazonaws.com/amazon-eks/1.32.0/2024-12-20/bin/linux/amd64/kubectl
+          chmod +x ./kubectl
+          mkdir -p $HOME/bin
+          mv ./kubectl $HOME/bin/kubectl
+          echo "::add-path::$HOME/bin"
+          
+      - name: Update kubeconfig for EKS
+        run: |
+          aws eks update-kubeconfig --region ${{ secrets.AWS_REGION }} --name ${{ secrets.AWS_CLUSTER }}
 
+      # EKS Deployment
+      - name: Generate the final deployment template
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gettext-base
+          export IMAGE_NAME="docker.io/${{ secrets.DOCKER_USERNAME }}/voting-app-vote:${{ env.IMAGE_TAG }}"
+          envsubst < k8s/deployment.template.yaml > k8s/deployment.yaml
+          echo "Final deployment.yaml:"
+          cat k8s/deployment.yaml
 
-      # Deploy to EKS
       - name: Deploy to EKS
         run: |
-           kubectl apply -f ingress.yaml
-           kubectl apply -f vote.yaml
-           kubectl apply -f result.yaml
-           kubectl apply -f redis.yaml
-           kubectl apply -f worker.yaml
-           kubectl apply -f postgres.yaml
+          kubectl apply -f k8s/
