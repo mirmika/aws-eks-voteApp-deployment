@@ -23,10 +23,10 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      # Check directory structure
-      - name: Check directory structure
+      - name: Debugging Step - Check environment variables
         run: |
-          ls -R ./ironhack-project-1 
+            echo "AWS_REGION: ${{ secrets.AWS_REGION }}"
+            echo "AWS_CLUSTER_NAME: ${{ secrets.AWS_CLUSTER_NAME }}"
           
       # Set the image tag to the Git tag or fallback to 'latest'
       - name: Set image tag
@@ -69,7 +69,7 @@ jobs:
           
       - name: Update kubeconfig for EKS
         run: |
-          aws eks update-kubeconfig --region ${{ secrets.AWS_REGION }} --name ${{ secrets.AWS_CLUSTER }}
+         aws eks update-kubeconfig --region ${{ secrets.AWS_REGION }} --name ${{ secrets.AWS_CLUSTER_NAME }}
 
       # EKS Deployment
       - name: Generate the final deployment template
