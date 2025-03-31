@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vote-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: vote
+  template:
+    metadata:
+      labels:
+        app: vote
+    spec:
+      containers:
+       - name: vote
+         image: mirmika/vote
+         env:
+         - name: REDIS_HOST
+           value: redis-service
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: vote-service
+spec:
+  selector:
+    app: vote
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+           

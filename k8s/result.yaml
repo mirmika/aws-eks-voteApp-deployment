@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: result-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: result
+  template:
+    metadata:
+      labels:
+        app: result
+    spec:
+      containers:
+        - name: result
+          image: mirmika/result
+          env:
+            - name: PG_HOST
+              value: pg-service
+            - name: PG_USER
+              value: "postgres"
+            - name: PG_PASSWORD
+              value: "postgres"
+            - name: PG_DATABASE
+              value: "votes"
+            - name: PG_PORT
+              value: "5432"  
+          ports:
+            - containerPort: 80  # This should be under the container spec
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: result-service
+spec:
+  selector:
+    app: result
+  ports:
+    - protocol: TCP
+      port: 80  # Expose port 80 externally
+      targetPort: 80  # Forward to container port 80

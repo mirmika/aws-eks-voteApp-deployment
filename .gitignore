@@ -1,0 +1,16 @@
+# Ignore specific files
+dotnet-install.sh
+
+# Ignore files containing sensitive information (example)
+secret-config.json
+
+# Ignore system-specific files
+.DS_Store
+Thumbs.db
+
+# Ignore logs and temporary files
+*.log
+*.tmp
+
+# Ignore environment-specific files
+.env
