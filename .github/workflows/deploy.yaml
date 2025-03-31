@@ -22,10 +22,6 @@ jobs:
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
-
-      - name: Debugging Step - Check AWS_CLUSTER_NAME
-        run: |
-            echo "AWS_CLUSTER_NAME: ${AWS_CLUSTER_NAME}"
           
       # Set the image tag to the Git tag or fallback to 'latest'
       - name: Set image tag
