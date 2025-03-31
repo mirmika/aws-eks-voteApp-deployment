@@ -5,7 +5,7 @@ on:
     branches:
       - main
     tags:
-      - 'v*'  # Trigger the pipeline on version tags (e.g., v1.0.0)
+      - 'v*'
 
 jobs:
   build_and_deploy:
@@ -59,7 +59,7 @@ jobs:
         run: |
           export IMAGE_NAME="docker.io/${{ secrets.DOCKER_USERNAME }}/worker:${GITHUB_REF##*/}"
           sudo docker push $IMAGE_NAME
-          
+
       # Configure AWS Credentials
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
