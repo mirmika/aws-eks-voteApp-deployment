@@ -3,7 +3,7 @@ name: Build and Deploy to EKS
 on:
   push:
     tags:
-      - 'v*'
+      - 'v*'  # Trigger on version tags like v1.0.0
 
 jobs:
   build_and_deploy:
@@ -20,37 +20,42 @@ jobs:
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
+
+      # Extract version tag from GITHUB_REF
+      - name: Extract image tag from GitHub Ref
+        id: extract_tag
+        run: |
+          echo "IMAGE_TAG=${GITHUB_REF##*/}" >> $GITHUB_ENV
+          echo "Using image tag: $IMAGE_TAG"
         
-      # Step 3: Build Docker images with versioned tags
+      # Build Docker images with versioned tags
       - name: Build image for result service
         run: |
           cd ./ironhack-project-1/result
-          sudo docker build -t mirmika/result:${{ env.IMAGE_TAG }} .
+          docker build -t mirmika/result:${{ env.IMAGE_TAG }} .
           
       - name: Build image for vote service
         run: |
           cd ./ironhack-project-1/vote
-          sudo docker build -t mirmika/vote:${{ env.IMAGE_TAG }} .
+          docker build -t mirmika/vote:${{ env.IMAGE_TAG }} .
 
       - name: Build image for worker service
         run: |
           cd ./ironhack-project-1/worker
-          sudo docker build -t mirmika/worker:${{ env.IMAGE_TAG }} .
+          docker build -t mirmika/worker:${{ env.IMAGE_TAG }} .
+      
       # Push Docker images to Docker Hub
       - name: Push image for result service to Docker Hub
         run: |
-          export IMAGE_NAME="docker.io/${{ secrets.DOCKER_USERNAME }}/result:$${{ env.IMAGE_TAG }}"
-          sudo docker push $IMAGE_NAME
+          docker push mirmika/result:${{ env.IMAGE_TAG }}
 
       - name: Push image for vote service to Docker Hub
         run: |
-          export IMAGE_NAME="docker.io/${{ secrets.DOCKER_USERNAME }}/vote:${{ env.IMAGE_TAG }}"
-          sudo docker push $IMAGE_NAME
+          docker push mirmika/vote:${{ env.IMAGE_TAG }}
 
       - name: Push image for worker service to Docker Hub
         run: |
-          export IMAGE_NAME="docker.io/${{ secrets.DOCKER_USERNAME }}/worker:${{ env.IMAGE_TAG }}"
-          sudo docker push $IMAGE_NAME
+          docker push mirmika/worker:${{ env.IMAGE_TAG }}
 
       # Configure AWS Credentials
       - name: Configure AWS Credentials
@@ -60,7 +65,7 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
-        # Install kubectl
+      # Install kubectl
       - name: Install kubectl
         run: |
           curl -LO "https://dl.k8s.io/release/v1.24.0/bin/linux/amd64/kubectl"
@@ -68,7 +73,7 @@ jobs:
           mkdir -p $HOME/bin
           mv ./kubectl $HOME/bin/kubectl
           echo "$HOME/bin" >> $GITHUB_PATH
-          
+
       - name: Update kubeconfig for EKS
         run: |
           aws eks update-kubeconfig --region ${{ secrets.AWS_REGION }} --name ${{ secrets.AWS_CLUSTER }}
@@ -79,9 +84,6 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y gettext-base
 
-          # Use envsubst to dynamically replace image tags in the Kubernetes YAML files
-          export IMAGE_TAG=${GITHUB_REF##*/}
-          
           # Replace image tags in k8s YAML files
           for service in result vote worker; do
             envsubst < k8s/${service}.yaml > k8s/${service}-final.yaml
