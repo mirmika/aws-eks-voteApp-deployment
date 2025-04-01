@@ -92,10 +92,10 @@ jobs:
             export IMAGE_TAG=${{ env.IMAGE_TAG }}
 
           # Use envsubst to replace IMAGE_TAG in all YAML files in the k8s directory
-          envsubst < k8s/*.yaml > k8s/processed-yaml-files.yaml
+          envsubst < ./k8s/*.yaml > ./k8s/processed-yaml-files.yaml
           echo "Processed k8s YAML files:"
-          cat k8s/processed-yaml-files.yaml
+          cat ./k8s/processed-yaml-files.yaml
 
       - name: Deploy to EKS
         run: |
-          kubectl apply -f k8s/processed-yaml-files.yaml
+          kubectl apply -f ./k8s/processed-yaml-files.yaml
