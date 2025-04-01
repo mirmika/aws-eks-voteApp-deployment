@@ -32,30 +32,30 @@ jobs:
       - name: Build image for result service
         run: |
           cd ./ironhack-project-1/result
-          docker build -t mirmika/result:${{ env.IMAGE_TAG }} .
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/result:${{ env.IMAGE_TAG }} .
           
       - name: Build image for vote service
         run: |
           cd ./ironhack-project-1/vote
-          docker build -t mirmika/vote:${{ env.IMAGE_TAG }} .
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/vote:${{ env.IMAGE_TAG }} .
 
       - name: Build image for worker service
         run: |
           cd ./ironhack-project-1/worker
-          docker build -t mirmika/worker:${{ env.IMAGE_TAG }} .
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/worker:${{ env.IMAGE_TAG }} .
       
       # Push Docker images to Docker Hub
       - name: Push image for result service to Docker Hub
         run: |
-          docker push mirmika/result:${{ env.IMAGE_TAG }}
+          docker push ${{ secrets.DOCKER_USERNAME }}/result:${{ env.IMAGE_TAG }}
 
       - name: Push image for vote service to Docker Hub
         run: |
-          docker push mirmika/vote:${{ env.IMAGE_TAG }}
+          docker push ${{ secrets.DOCKER_USERNAME }}/vote:${{ env.IMAGE_TAG }}
 
       - name: Push image for worker service to Docker Hub
         run: |
-          docker push mirmika/worker:${{ env.IMAGE_TAG }}
+          docker push ${{ secrets.DOCKER_USERNAME }}/worker:${{ env.IMAGE_TAG }}
 
       # Configure AWS Credentials
       - name: Configure AWS Credentials
@@ -96,7 +96,8 @@ jobs:
          # Now, deploy the processed YAML files
          for final_file in k8s/*-final.yaml; do
          if [[ -f $final_file ]]; then
-         # Deploy each processed YAML file
+         # Deploy each processed YAML file with the Docker username
+         IMAGE_TAG="${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_USERNAME }}/result:${{ env.IMAGE_TAG }}"
          kubectl apply -f $final_file
          echo "Deployed $final_file"
          fi
