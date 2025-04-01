@@ -86,7 +86,7 @@ jobs:
          sudo apt-get install -y gettext-base
 
          # Use envsubst to replace IMAGE_TAG in all YAML files in the k8s directory
-         for file in k8s/deployment/*.yaml; do
+         for file in k8s/manifests/*.yaml; do
          if [[ -f $file ]]; then
          # Replace image tags in each file and create final files
          envsubst < $file > ${file%.yaml}-final.yaml
@@ -95,7 +95,7 @@ jobs:
          done
 
          # Now, deploy the processed YAML files
-         for final_file in k8s/deployment/*-final.yaml; do
+         for final_file in k8s/manifests/*-final.yaml; do
          if [[ -f $final_file ]]; then
          # Deploy each processed YAML file
          kubectl apply -f $final_file

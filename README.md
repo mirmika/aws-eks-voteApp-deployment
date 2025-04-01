@@ -73,9 +73,4 @@ Each microservice has a version number, helping maintain compatibility across de
 3. **Push Docker images** to Docker Hub or Amazon ECR.
 4. **Apply Kubernetes manifests:**
    ```bash
-   kubectl apply -f k8s/ingress.yaml
-   kubectl apply -f k8s/vote.yaml
-   kubectl apply -f k8s/result.yaml
-   kubectl apply -f k8s/redis.yaml
-   kubectl apply -f k8s/worker.yaml
-   kubectl apply -f k8s/stateless-postgres.yaml
+   kubectl apply -f k8s/manifests/*.yaml
