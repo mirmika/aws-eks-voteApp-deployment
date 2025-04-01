@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
        - name: vote
-         image: mirmika/vote:${{IMAGE_TAG}} 
+         image: mirmika/vote:${IMAGE_TAG} 
          env:
          - name: REDIS_HOST
            value: redis-service
