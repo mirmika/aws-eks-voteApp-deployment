@@ -2,8 +2,9 @@ apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: postgres-statefulset
-  spec:
-    replicas: 2
+spec:
+  serviceName: "pg-service"
+  replicas: 2
   selector:
     matchLabels:
       app: postgres
@@ -25,14 +26,21 @@ metadata:
           ports:
             - containerPort: 5432
           volumeMounts:
-            - name: postgres-data
-              mountPath: /var/lib/postgresql/data
-  volumeClaimTemplates:
-    - metadata:
-        name: postgres-data
-      spec:
-        accessModes: ["ReadWriteOnce"]
-        resources:
-          requests:
-            storage: 1Gi
-        storageClassName: gp2
+            - name: data
+              mountPath: /votes
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: postgres-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: pg-service
+spec:
+  selector:
+    app: postgres
+  ports:
+    - protocol: TCP
+      port: 5432
+      targetPort: 5432
