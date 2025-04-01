@@ -9,5 +9,3 @@ spec:
     - ReadWriteOnce
   persistentVolumeReclaimPolicy: Retain
   storageClassName: standard
-  hostPath:
-    path: /var/lib/postgresql/data
