@@ -78,24 +78,26 @@ jobs:
         run: |
           aws eks update-kubeconfig --region ${{ secrets.AWS_REGION }} --name ${{ secrets.AWS_CLUSTER }}
 
-      - name: Check IMAGE_TAG before substitution
-        run: |
-            echo "IMAGE_TAG: ${IMAGE_TAG}"  # Ensure the IMAGE_TAG is set correctly
-
       # EKS Deployment    
       - name: Generate and Deploy to EKS
         run: |
-          sudo apt-get update
-          sudo apt-get install -y gettext-base
-          
-          # Use envsubst to dynamically replace image tags in the Kubernetes YAML files
-            export IMAGE_TAG=${{ env.IMAGE_TAG }}
+         sudo apt-get update
+         sudo apt-get install -y gettext-base
 
-          # Use envsubst to replace IMAGE_TAG in all YAML files in the k8s directory
-          envsubst < ./k8s/*.yaml > ./k8s/processed-yaml-files.yaml
-          echo "Processed k8s YAML files:"
-          cat ./k8s/processed-yaml-files.yaml
+         # Use envsubst to replace IMAGE_TAG in all YAML files in the k8s directory
+         for file in k8s/*.yaml; do
+         if [[ -f $file ]]; then
+         # Replace image tags in each file and create final files
+         envsubst < $file > ${file%.yaml}-final.yaml
+         echo "Processed $file"
+         fi
+         done
 
-      - name: Deploy to EKS
-        run: |
-          kubectl apply -f ./k8s/processed-yaml-files.yaml
+         # Now, deploy the processed YAML files
+         for final_file in k8s/*-final.yaml; do
+         if [[ -f $final_file ]]; then
+         # Deploy each processed YAML file
+         kubectl apply -f $final_file
+         echo "Deployed $final_file"
+         fi
+         done
