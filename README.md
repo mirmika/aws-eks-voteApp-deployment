@@ -24,6 +24,7 @@ The voting app lets users cast their votes, and the results are dynamically disp
 - **Real-time Voting:** Users can cast their votes, and the results are updated live.
 - **Kubernetes Deployment:** The application is deployed on **AWS EKS**, using **Kubernetes** for container orchestration.
 - **Automated CI/CD Pipeline:** **GitHub Actions** automates the building, testing, and deployment of Docker images to **AWS EKS**.
+- **Stateless PostgreSQL:** Utilizes PostgreSQL in a stateless manner, enhancing scalability and fault tolerance by maintaining data storage without relying on local disk storage or maintaining state between sessions.
 - **Versioning:** Each microservice has its own version number, simplifying the management of different versions.
 
 ---
@@ -43,6 +44,7 @@ The project uses **GitHub Actions** to automate the entire pipeline:
 The pipeline configuration is located in the `.github/workflows` folder.
 
 ### Example Workflow:
+
 - Build Docker images and tag them with the latest version.
 - Push images to Docker Hub or **Amazon ECR**.
 - Deploy the app to **AWS EKS** using Kubernetes manifests.
@@ -64,16 +66,16 @@ Each microservice has a version number, helping maintain compatibility across de
 
 ## 📦 Deployment to AWS EKS
 
-### Steps to deploy the app to **AWS EKS**:
+### Steps to deploy the app to AWS EKS:
 
 1. **Ensure a running AWS EKS cluster.**
-2. **Configure** kubectl and AWS CLI on your local machine.
+2. **Configure kubectl and AWS CLI** on your local machine.
 3. **Push Docker images** to Docker Hub or Amazon ECR.
-4. **Apply Kubernetes manifests**:
+4. **Apply Kubernetes manifests:**
    ```bash
    kubectl apply -f k8s/ingress.yaml
    kubectl apply -f k8s/vote.yaml
    kubectl apply -f k8s/result.yaml
    kubectl apply -f k8s/redis.yaml
    kubectl apply -f k8s/worker.yaml
-   kubectl apply -f k8s/postgres.yaml
+   kubectl apply -f k8s/stateless-postgres.yaml
