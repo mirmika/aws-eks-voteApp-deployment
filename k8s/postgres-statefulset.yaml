@@ -26,14 +26,13 @@ metadata:
             - containerPort: 5432
           volumeMounts:
             - name: postgres-data
-              mountPath: /data
-              
-            # Volume Claim
-          volumeClaimTemplates:
-             - metadata:
-               name: postgres-data
-               spec:
-                accessModes: ["ReadWriteOnce"]
-                resources:
-                requests:
-                storage: 1Gi
+              mountPath: /var/lib/postgresql/data
+  volumeClaimTemplates:
+    - metadata:
+        name: postgres-data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 1Gi
+        storageClassName: gp2
